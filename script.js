@@ -931,12 +931,19 @@
       const overdue = State.reminders.filter(r => !r.done && new Date(r.at).getTime() <= now);
       const completed = State.reminders.filter(r => r.done);
 
-      this.statTotal.textContent = total;
-      this.statUpcoming.textContent = upcoming.length;
-      this.statToday.textContent = dueToday.length;
-      this.statCompleted.textContent = completed.length;
+      const statTotal = this.statTotal || $("dashStatTotal");
+      const statUpcoming = this.statUpcoming || $("dashStatUpcoming");
+      const statToday = this.statToday || $("dashStatToday");
+      const statCompleted = this.statCompleted || $("dashStatCompleted");
+      const upcomingList = this.upcomingList || $("dashUpcomingList");
+      const quickContacts = this.quickContacts || $("dashQuickContacts");
+      const overdueSub = $("dashStatOverdueSub");
 
-      $("dashStatOverdueSub").textContent = `${overdue.length} overdue`;
+      if (statTotal) statTotal.textContent = total;
+      if (statUpcoming) statUpcoming.textContent = upcoming.length;
+      if (statToday) statToday.textContent = dueToday.length;
+      if (statCompleted) statCompleted.textContent = completed.length;
+      if (overdueSub) overdueSub.textContent = `${overdue.length} overdue`;
 
       // Update sidebar badges
       const badgeUpcoming = $("badgeUpcomingCount");
@@ -953,60 +960,64 @@
       }
 
       // Render upcoming schedule
-      const sortedUpcoming = [...upcoming].sort((a, b) => new Date(a.at) - new Date(b.at)).slice(0, 5);
+      if (upcomingList) {
+        const sortedUpcoming = [...upcoming].sort((a, b) => new Date(a.at) - new Date(b.at)).slice(0, 5);
 
-      if (sortedUpcoming.length === 0) {
-        this.upcomingList.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">🗓️</div>
-            <strong class="empty-title">No upcoming reminders</strong>
-            <p class="empty-desc">Your agenda is clear. Create a reminder to stay on schedule.</p>
-            <a href="#compose" class="btn btn-primary btn-sm">+ New Reminder</a>
-          </div>
-        `;
-      } else {
-        this.upcomingList.innerHTML = sortedUpcoming.map(item => {
-          const contact = Utils.findContactByPhone(item.phone);
-          const name = contact ? contact.name : Utils.formatPhoneInternational(item.phone);
-          const relative = Utils.getRelativeTime(item.at);
-
-          return `
-            <div class="reminder-card" style="padding: 12px 16px;">
-              <div class="reminder-card-top">
-                <div class="reminder-recipient-box">
-                  <div class="reminder-avatar">${name.slice(0, 1).toUpperCase()}</div>
-                  <div class="recipient-meta">
-                    <strong class="recipient-name">${Utils.escapeHtml(name)}</strong>
-                    <span class="recipient-phone">${Utils.escapeHtml(Utils.formatPhoneInternational(item.phone))}</span>
-                  </div>
-                </div>
-                <span class="status-badge upcoming">${Utils.escapeHtml(relative)}</span>
-              </div>
-              <div class="reminder-body" style="padding: 8px 12px; font-size: 12px;">
-                ${Utils.escapeHtml(item.message.slice(0, 120))}${item.message.length > 120 ? "..." : ""}
-              </div>
-              <div class="reminder-card-foot">
-                <span class="reminder-timing">🕒 ${Utils.escapeHtml(Utils.formatDateTime(item.at))}</span>
-                <div class="card-action-btns">
-                  <button class="btn btn-primary sm btn-action-open" data-id="${item.id}">Open WhatsApp</button>
-                  <button class="btn btn-ghost sm btn-action-done" data-id="${item.id}">Mark Done</button>
-                </div>
-              </div>
+        if (sortedUpcoming.length === 0) {
+          upcomingList.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">🗓️</div>
+              <strong class="empty-title">No upcoming reminders</strong>
+              <p class="empty-desc">Your agenda is clear. Create a reminder to stay on schedule.</p>
+              <a href="#compose" class="btn btn-primary btn-sm">+ New Reminder</a>
             </div>
           `;
-        }).join("");
+        } else {
+          upcomingList.innerHTML = sortedUpcoming.map(item => {
+            const contact = Utils.findContactByPhone(item.phone);
+            const name = contact ? contact.name : Utils.formatPhoneInternational(item.phone);
+            const relative = Utils.getRelativeTime(item.at);
+
+            return `
+              <div class="reminder-card" style="padding: 12px 16px;">
+                <div class="reminder-card-top">
+                  <div class="reminder-recipient-box">
+                    <div class="reminder-avatar">${name.slice(0, 1).toUpperCase()}</div>
+                    <div class="recipient-meta">
+                      <strong class="recipient-name">${Utils.escapeHtml(name)}</strong>
+                      <span class="recipient-phone">${Utils.escapeHtml(Utils.formatPhoneInternational(item.phone))}</span>
+                    </div>
+                  </div>
+                  <span class="status-badge upcoming">${Utils.escapeHtml(relative)}</span>
+                </div>
+                <div class="reminder-body" style="padding: 8px 12px; font-size: 12px;">
+                  ${Utils.escapeHtml(item.message.slice(0, 120))}${item.message.length > 120 ? "..." : ""}
+                </div>
+                <div class="reminder-card-foot">
+                  <span class="reminder-timing">🕒 ${Utils.escapeHtml(Utils.formatDateTime(item.at))}</span>
+                  <div class="card-action-btns">
+                    <button class="btn btn-primary sm btn-action-open" data-id="${item.id}">Open WhatsApp</button>
+                    <button class="btn btn-ghost sm btn-action-done" data-id="${item.id}">Mark Done</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join("");
+        }
       }
 
       // Render quick contacts chips
-      if (State.contacts.length === 0) {
-        this.quickContacts.innerHTML = `<span style="font-size:12px; color:var(--text-subtle);">No saved contacts yet. <a href="#contacts" style="color:var(--wa-teal);font-weight:700;">Add contacts &rarr;</a></span>`;
-      } else {
-        this.quickContacts.innerHTML = State.contacts.slice(0, 8).map(c => `
-          <button type="button" class="contact-chip-btn" data-contact-phone="${c.phone}">
-            <span class="contact-chip-avatar">${c.name.slice(0, 1).toUpperCase()}</span>
-            <span>${Utils.escapeHtml(c.name)}</span>
-          </button>
-        `).join("");
+      if (quickContacts) {
+        if (State.contacts.length === 0) {
+          quickContacts.innerHTML = `<span style="font-size:12px; color:var(--text-subtle);">No saved contacts yet. <a href="#contacts" style="color:var(--wa-teal);font-weight:700;">Add contacts &rarr;</a></span>`;
+        } else {
+          quickContacts.innerHTML = State.contacts.slice(0, 8).map(c => `
+            <button type="button" class="contact-chip-btn" data-contact-phone="${c.phone}">
+              <span class="contact-chip-avatar">${c.name.slice(0, 1).toUpperCase()}</span>
+              <span>${Utils.escapeHtml(c.name)}</span>
+            </button>
+          `).join("");
+        }
       }
     }
   };
@@ -2121,30 +2132,44 @@
   };
 
   // ================= APP INITIALIZATION =================
-  document.addEventListener("DOMContentLoaded", () => {
-    // Set dynamic footer year
-    const yr = $("footerYear");
-    if (yr) yr.textContent = new Date().getFullYear();
-
-    // Set user timezone label in composer
+  function initApp() {
     try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const tzEl = $("userTimezoneLabel");
-      if (tzEl) tzEl.textContent = tz;
-    } catch (e) {}
+      // Set dynamic footer year
+      const yr = $("footerYear");
+      if (yr) yr.textContent = new Date().getFullYear();
 
-    // Init state and components
-    State.init();
-    Router.init();
-    ComposerView.init();
-    DashboardView.init();
-    RemindersView.init();
-    ContactsView.init();
-    SettingsView.init();
-    Scheduler.init();
+      // Set user timezone label in composer
+      try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const tzEl = $("userTimezoneLabel");
+        if (tzEl) tzEl.textContent = tz;
+      } catch (e) {}
 
-    // Initial render of default view
-    DashboardView.render();
-  });
+      // 1. Initialize State first
+      State.init();
+
+      // 2. Initialize all Views and their DOM element references
+      ComposerView.init();
+      DashboardView.init();
+      RemindersView.init();
+      ContactsView.init();
+      SettingsView.init();
+      Scheduler.init();
+
+      // 3. Initialize Router AFTER views are ready
+      Router.init();
+
+      // 4. Initial render of default view
+      DashboardView.render();
+    } catch (err) {
+      console.error("Initialization error:", err);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initApp);
+  } else {
+    initApp();
+  }
 
 })();
