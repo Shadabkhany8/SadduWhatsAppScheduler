@@ -1,0 +1,9 @@
+{
+  "name": "Saddu WhatsApp Scheduler",
+  "short_name": "Saddu Scheduler",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5faf7",
+  "theme_color": "#128c4a",
+  "icons": []
+}

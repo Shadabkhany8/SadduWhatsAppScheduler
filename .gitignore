@@ -1,0 +1,12 @@
+# Build & temporary files
+dist/
+__pycache__/
+*.pyc
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/

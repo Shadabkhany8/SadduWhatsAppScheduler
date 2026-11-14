@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#128c4a">
+  <meta name="description" content="A free, browser-based WhatsApp message reminder and scheduler.">
+  <title>Saddu WhatsApp Scheduler</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Saddu WhatsApp Scheduler home">
+      <span class="brand-mark">S</span>
+      <span><b>Saddu</b><small>WhatsApp Scheduler</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="status-dot"></span><span class="status-label">Personal reminder mode</span>
+      <button class="icon-btn" id="notifyBtn" title="Enable browser notifications" aria-label="Enable notifications">🔔</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="welcome">
+      <div>
+        <p class="eyebrow">YOUR MESSAGES, YOUR TIMING</p>
+        <h1>Plan a message.<br><span>Never miss the moment.</span></h1>
+        <p class="sub">Schedule a reminder, prepare your message and open the real WhatsApp chat when it’s time.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="bubble bubble-one">Hey! 👋</div>
+        <div class="phone"><div class="phone-top"></div><div class="chat-line"></div><div class="chat-line short"></div><div class="chat-line right"></div><div class="chat-line right tiny"></div><div class="phone-send">➤</div></div>
+        <div class="bubble bubble-two">On time ✨</div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <article class="stat-card"><span class="stat-icon green">◷</span><div><small>Scheduled</small><strong id="scheduledCount">0</strong></div></article>
+      <article class="stat-card"><span class="stat-icon mint">✓</span><div><small>Due today</small><strong id="todayCount">0</strong></div></article>
+      <article class="stat-card"><span class="stat-icon pale">✉</span><div><small>Prepared messages</small><strong id="preparedCount">0</strong></div></article>
+    </section>
+
+    <section class="content-grid">
+      <section class="panel compose-panel">
+        <div class="panel-heading"><div><p class="eyebrow">CREATE REMINDER</p><h2>Schedule a message</h2></div><span class="step-badge">01</span></div>
+        <form id="scheduleForm">
+          <label for="phone">WhatsApp number <span class="optional">with country code</span></label>
+          <div class="phone-input"><span>＋</span><input id="phone" type="tel" inputmode="tel" placeholder="91 9876543210" autocomplete="tel" required></div>
+          <p class="hint">Example: 91 followed by the 10-digit mobile number. Don’t include spaces or symbols.</p>
+
+          <label for="message">Your message</label>
+          <textarea id="message" rows="4" maxlength="2000" placeholder="Type your message here..." required></textarea>
+          <div class="field-foot"><span>Use a message the recipient is happy to receive.</span><span id="charCount">0 / 2000</span></div>
+
+          <div class="two-col">
+            <div><label for="repeat">Repeat text in one message</label><input id="repeat" type="number" min="1" max="100" value="1" required><p class="hint">For example, 100 creates one message containing the text 100 times.</p></div>
+            <div><label for="scheduleAt">Reminder date & time</label><input id="scheduleAt" type="datetime-local" required><p class="hint">Keep this page open for an on-time browser reminder.</p></div>
+          </div>
+          <div class="preview-box"><div class="preview-title"><span>MESSAGE PREVIEW</span><span class="preview-tag">One WhatsApp message</span></div><p id="previewText">Your message preview will appear here.</p></div>
+          <button class="primary-btn" type="submit"><span>＋</span> Save reminder</button>
+          <p class="disclaimer">This app does not send messages automatically. At the scheduled time, it reminds you and opens WhatsApp with your prepared text. You choose whether to tap Send.</p>
+        </form>
+      </section>
+
+      <section class="panel list-panel">
+        <div class="panel-heading list-heading"><div><p class="eyebrow">YOUR PLAN</p><h2>Upcoming reminders</h2></div><span class="count-pill" id="listCount">0 items</span></div>
+        <div class="filter-row">
+          <button class="filter active" data-filter="upcoming">Upcoming</button>
+          <button class="filter" data-filter="all">All</button>
+          <button class="filter" data-filter="done">Completed</button>
+        </div>
+        <div id="reminderList" class="reminder-list">
+          <div class="empty-state"><div class="empty-icon">🗓️</div><b>No reminders yet</b><p>Create your first reminder using the form.</p></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="info-strip"><span class="info-icon">ⓘ</span><div><b>How sending works</b><p>Saddu is a reminder tool, not a WhatsApp automation service. It uses a WhatsApp click-to-chat link. WhatsApp opens with your message ready; you manually review and send it.</p></div></section>
+    <footer><span>© <span id="year"></span> Saddu WhatsApp Scheduler</span><span>Free • Browser-based • Your reminders stay on this device</span></footer>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
