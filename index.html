@@ -213,20 +213,34 @@
                   <textarea id="quickMessage" rows="2" placeholder="Quick message note..." required></textarea>
                 </div>
                 <div class="form-row">
+                  <div class="form-group col-12">
+                    <label for="quickWhen">Schedule When</label>
+                    <div class="select-wrapper">
+                      <select id="quickWhen">
+                        <option value="2">⚡ In 2 minutes (Quick test)</option>
+                        <option value="5">In 5 minutes</option>
+                        <option value="15">In 15 minutes</option>
+                        <option value="30">In 30 minutes</option>
+                        <option value="60" selected>In 1 hour</option>
+                        <option value="180">In 3 hours</option>
+                        <option value="tomorrow9">Tomorrow 9:00 AM</option>
+                        <option value="custom">📅 Custom Date &amp; Time...</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row" id="quickCustomTimeRow" style="display:none;">
                   <div class="form-group col-6">
-                    <label for="quickWhen">In</label>
-                    <select id="quickWhen">
-                      <option value="15">15 minutes</option>
-                      <option value="30">30 minutes</option>
-                      <option value="60" selected>1 hour</option>
-                      <option value="180">3 hours</option>
-                      <option value="tomorrow9">Tomorrow 9 AM</option>
-                    </select>
+                    <label for="quickCustomDate">Date</label>
+                    <input type="date" id="quickCustomDate">
                   </div>
                   <div class="form-group col-6">
-                    <label>&nbsp;</label>
-                    <button type="submit" class="btn btn-primary btn-block">Schedule</button>
+                    <label for="quickCustomTime">Time</label>
+                    <input type="time" id="quickCustomTime">
                   </div>
+                </div>
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary btn-block">Schedule Reminder</button>
                 </div>
               </form>
             </div>
@@ -377,7 +391,9 @@
 
                 <!-- Quick Timing Shortcuts -->
                 <div class="timing-shortcuts">
-                  <span class="shortcuts-label">Quick time:</span>
+                  <span class="shortcuts-label">Quick presets:</span>
+                  <button type="button" class="btn-time-shortcut" data-offset="2">⚡ +2 Mins (Test)</button>
+                  <button type="button" class="btn-time-shortcut" data-offset="5">+5 Mins</button>
                   <button type="button" class="btn-time-shortcut" data-offset="15">+15 Mins</button>
                   <button type="button" class="btn-time-shortcut" data-offset="30">+30 Mins</button>
                   <button type="button" class="btn-time-shortcut" data-offset="60">+1 Hour</button>
@@ -387,12 +403,17 @@
                 </div>
 
                 <div class="form-row">
-                  <div class="form-group col-12">
-                    <label for="scheduleDateTime">Date & Time <span class="required">*</span></label>
-                    <input type="datetime-local" id="scheduleDateTime" required>
-                    <span class="form-hint">Displayed in your local timezone (<span id="userTimezoneLabel">Local</span>). Keep the tab open for real-time alerts.</span>
+                  <div class="form-group col-6">
+                    <label for="scheduleDate">Custom Date <span class="required">*</span></label>
+                    <input type="date" id="scheduleDate" required>
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="scheduleTime">Custom Time <span class="required">*</span></label>
+                    <input type="time" id="scheduleTime" required>
                   </div>
                 </div>
+                <input type="hidden" id="scheduleDateTime" value="">
+                <span class="form-hint">Choose any exact custom date and time. Local timezone: <span id="userTimezoneLabel">Local</span></span>
               </div>
 
               <!-- Form Actions -->
@@ -851,11 +872,16 @@
               <label for="editReminderRepeat">Repeat Count</label>
               <input type="number" id="editReminderRepeat" min="1" max="100" value="1" required>
             </div>
-            <div class="form-group col-8">
-              <label for="editReminderWhen">Reminder Date &amp; Time</label>
-              <input type="datetime-local" id="editReminderWhen" required>
+            <div class="form-group col-4">
+              <label for="editReminderDate">Date</label>
+              <input type="date" id="editReminderDate" required>
+            </div>
+            <div class="form-group col-4">
+              <label for="editReminderTime">Time</label>
+              <input type="time" id="editReminderTime" required>
             </div>
           </div>
+          <input type="hidden" id="editReminderWhen" value="">
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btnCancelEditReminder">Cancel</button>

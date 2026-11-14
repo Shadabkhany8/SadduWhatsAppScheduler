@@ -409,6 +409,8 @@
       this.repeatSlider = $("repeatSlider");
       this.repeatCount = $("repeatCount");
       this.repeatCountBadge = $("repeatCountBadge");
+      this.scheduleDate = $("scheduleDate");
+      this.scheduleTime = $("scheduleTime");
       this.scheduleDateTime = $("scheduleDateTime");
 
       this.previewBubbleText = $("previewBubbleText");
@@ -425,15 +427,43 @@
       this.updatePreview();
     },
 
+    toLocalDateStr(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    },
+
+    toLocalTimeStr(d) {
+      const h = String(d.getHours()).padStart(2, "0");
+      const m = String(d.getMinutes()).padStart(2, "0");
+      return `${h}:${m}`;
+    },
+
     setDefaultDateTime(offsetMinutes = 15) {
       const target = new Date(Date.now() + offsetMinutes * 60 * 1000);
-      // Format as YYYY-MM-DDTHH:MM
-      const offsetMs = target.getTimezoneOffset() * 60000;
-      const localTarget = new Date(target.getTime() - offsetMs);
-      const minLocal = new Date(Date.now() - offsetMs);
+      const dateStr = this.toLocalDateStr(target);
+      const timeStr = this.toLocalTimeStr(target);
 
-      this.scheduleDateTime.min = minLocal.toISOString().slice(0, 16);
-      this.scheduleDateTime.value = localTarget.toISOString().slice(0, 16);
+      if (this.scheduleDate) {
+        this.scheduleDate.value = dateStr;
+        this.scheduleDate.min = this.toLocalDateStr(new Date());
+      }
+      if (this.scheduleTime) {
+        this.scheduleTime.value = timeStr;
+      }
+      if (this.scheduleDateTime) {
+        this.scheduleDateTime.value = `${dateStr}T${timeStr}`;
+      }
+      this.updatePreview();
+    },
+
+    syncFromDateAndTime() {
+      const dateVal = this.scheduleDate ? this.scheduleDate.value : "";
+      const timeVal = this.scheduleTime ? this.scheduleTime.value : "";
+      if (dateVal && timeVal && this.scheduleDateTime) {
+        this.scheduleDateTime.value = `${dateVal}T${timeVal}`;
+      }
       this.updatePreview();
     },
 
@@ -502,9 +532,15 @@
         this.updatePreview();
       });
 
-      this.scheduleDateTime.addEventListener("change", () => {
-        this.updatePreview();
-      });
+      // Custom Date & Time listeners
+      if (this.scheduleDate) {
+        this.scheduleDate.addEventListener("input", () => this.syncFromDateAndTime());
+        this.scheduleDate.addEventListener("change", () => this.syncFromDateAndTime());
+      }
+      if (this.scheduleTime) {
+        this.scheduleTime.addEventListener("input", () => this.syncFromDateAndTime());
+        this.scheduleTime.addEventListener("change", () => this.syncFromDateAndTime());
+      }
 
       // Time shortcut buttons
       $$(".btn-time-shortcut").forEach(btn => {
@@ -521,16 +557,18 @@
             if (tonight.getTime() <= Date.now()) {
               tonight.setDate(tonight.getDate() + 1);
             }
-            const offsetMs = tonight.getTimezoneOffset() * 60000;
-            this.scheduleDateTime.value = new Date(tonight.getTime() - offsetMs).toISOString().slice(0, 16);
+            if (this.scheduleDate) this.scheduleDate.value = this.toLocalDateStr(tonight);
+            if (this.scheduleTime) this.scheduleTime.value = "20:00";
+            if (this.scheduleDateTime) this.scheduleDateTime.value = `${this.toLocalDateStr(tonight)}T20:00`;
             this.updatePreview();
             Toast.show("Set to Tonight 8:00 PM");
           } else if (preset === "tomorrow9") {
             const tom = new Date();
             tom.setDate(tom.getDate() + 1);
             tom.setHours(9, 0, 0, 0);
-            const offsetMs = tom.getTimezoneOffset() * 60000;
-            this.scheduleDateTime.value = new Date(tom.getTime() - offsetMs).toISOString().slice(0, 16);
+            if (this.scheduleDate) this.scheduleDate.value = this.toLocalDateStr(tom);
+            if (this.scheduleTime) this.scheduleTime.value = "09:00";
+            if (this.scheduleDateTime) this.scheduleDateTime.value = `${this.toLocalDateStr(tom)}T09:00`;
             this.updatePreview();
             Toast.show("Set to Tomorrow 9:00 AM");
           }
@@ -665,7 +703,15 @@
       const fullPhone = this.getFullPhone();
       const rawMsg = this.messageBody.value.trim();
       const count = Math.min(100, Math.max(1, parseInt(this.repeatCount.value, 10) || 1));
-      const scheduledVal = this.scheduleDateTime.value;
+      
+      const dateVal = this.scheduleDate ? this.scheduleDate.value : "";
+      const timeVal = this.scheduleTime ? this.scheduleTime.value : "";
+      let scheduledVal = this.scheduleDateTime ? this.scheduleDateTime.value : "";
+
+      if (dateVal && timeVal) {
+        scheduledVal = `${dateVal}T${timeVal}`;
+        if (this.scheduleDateTime) this.scheduleDateTime.value = scheduledVal;
+      }
 
       // Validation
       if (!fullPhone || fullPhone.length < 8 || fullPhone.length > 15) {
@@ -680,21 +726,22 @@
         return;
       }
 
-      if (!scheduledVal) {
-        Toast.show("Please select a date and time for the reminder.", "error");
-        this.scheduleDateTime.focus();
+      if (!scheduledVal || !dateVal || !timeVal) {
+        Toast.show("Please select both custom date and time for the reminder.", "error");
+        if (!dateVal && this.scheduleDate) this.scheduleDate.focus();
+        else if (this.scheduleTime) this.scheduleTime.focus();
         return;
       }
 
       const scheduleTime = new Date(scheduledVal).getTime();
       if (isNaN(scheduleTime)) {
-        Toast.show("Invalid date or time format.", "error");
+        Toast.show("Invalid custom date or time format.", "error");
         return;
       }
 
-      if (scheduleTime <= Date.now() - 60000) {
-        Toast.show("Please pick a future date and time for your reminder.", "warning");
-        this.scheduleDateTime.focus();
+      if (scheduleTime < Date.now() - 60000) {
+        Toast.show("Please pick a current or future time for your reminder.", "warning");
+        if (this.scheduleTime) this.scheduleTime.focus();
         return;
       }
 
@@ -730,7 +777,7 @@
       State.reminders.push(reminder);
       State.saveReminders();
 
-      Toast.show("Reminder scheduled successfully on your device!");
+      Toast.show(`Reminder scheduled for ${Utils.formatDateTime(reminder.at)}!`);
       this.resetForm();
       Router.navigate("reminders");
     },
@@ -791,11 +838,33 @@
       const form = $("quickComposeForm");
       if (!form) return;
 
+      const whenSelect = $("quickWhen");
+      const customRow = $("quickCustomTimeRow");
+      const customDate = $("quickCustomDate");
+      const customTime = $("quickCustomTime");
+
+      // Set defaults for custom date/time
+      const now = new Date();
+      const in30 = new Date(Date.now() + 30 * 60 * 1000);
+      if (customDate) {
+        customDate.value = ComposerView.toLocalDateStr(in30);
+        customDate.min = ComposerView.toLocalDateStr(now);
+      }
+      if (customTime) {
+        customTime.value = ComposerView.toLocalTimeStr(in30);
+      }
+
+      if (whenSelect && customRow) {
+        whenSelect.addEventListener("change", () => {
+          customRow.style.display = whenSelect.value === "custom" ? "flex" : "none";
+        });
+      }
+
       form.addEventListener("submit", (e) => {
         e.preventDefault();
         const rawPhone = $("quickPhone").value.trim();
         const msg = $("quickMessage").value.trim();
-        const when = $("quickWhen").value;
+        const when = whenSelect ? whenSelect.value : "60";
 
         const phone = Utils.normalizePhone(rawPhone);
         if (phone.length < 8) {
@@ -807,8 +876,25 @@
           return;
         }
 
-        let targetDate = new Date();
-        if (when === "tomorrow9") {
+        let targetDate;
+        if (when === "custom") {
+          const dVal = customDate ? customDate.value : "";
+          const tVal = customTime ? customTime.value : "";
+          if (!dVal || !tVal) {
+            Toast.show("Please select both custom date and time.", "error");
+            return;
+          }
+          targetDate = new Date(`${dVal}T${tVal}`);
+          if (isNaN(targetDate.getTime())) {
+            Toast.show("Invalid custom date or time.", "error");
+            return;
+          }
+          if (targetDate.getTime() < Date.now() - 60000) {
+            Toast.show("Custom time should be in the future.", "warning");
+            return;
+          }
+        } else if (when === "tomorrow9") {
+          targetDate = new Date();
           targetDate.setDate(targetDate.getDate() + 1);
           targetDate.setHours(9, 0, 0, 0);
         } else {
@@ -829,7 +915,8 @@
         State.saveReminders();
 
         form.reset();
-        Toast.show("Quick reminder scheduled!");
+        if (customRow) customRow.style.display = "none";
+        Toast.show(`Quick reminder scheduled for ${Utils.formatDateTime(targetDate.toISOString())}!`);
         this.render();
       });
     },
@@ -1058,11 +1145,13 @@
       $("editReminderMessage").value = item.message;
       $("editReminderRepeat").value = item.repeat || 1;
 
-      // Format ISO to datetime-local
       const d = new Date(item.at);
-      const offsetMs = d.getTimezoneOffset() * 60000;
-      const localIso = new Date(d.getTime() - offsetMs).toISOString().slice(0, 16);
-      $("editReminderWhen").value = localIso;
+      const dateStr = ComposerView.toLocalDateStr(d);
+      const timeStr = ComposerView.toLocalTimeStr(d);
+
+      if ($("editReminderDate")) $("editReminderDate").value = dateStr;
+      if ($("editReminderTime")) $("editReminderTime").value = timeStr;
+      if ($("editReminderWhen")) $("editReminderWhen").value = `${dateStr}T${timeStr}`;
 
       Modals.open("editReminderModalBackdrop");
     },
@@ -1076,7 +1165,14 @@
       const cleanPhone = Utils.normalizePhone(rawPhone);
       const msg = $("editReminderMessage").value.trim();
       const repeat = parseInt($("editReminderRepeat").value, 10) || 1;
-      const whenVal = $("editReminderWhen").value;
+
+      const dVal = $("editReminderDate") ? $("editReminderDate").value : "";
+      const tVal = $("editReminderTime") ? $("editReminderTime").value : "";
+      let whenVal = $("editReminderWhen") ? $("editReminderWhen").value : "";
+
+      if (dVal && tVal) {
+        whenVal = `${dVal}T${tVal}`;
+      }
 
       if (cleanPhone.length < 8) {
         Toast.show("Please enter a valid phone number with country code.", "error");
@@ -1086,8 +1182,14 @@
         Toast.show("Message cannot be empty.", "error");
         return;
       }
-      if (!whenVal) {
-        Toast.show("Please select a date and time.", "error");
+      if (!whenVal || !dVal || !tVal) {
+        Toast.show("Please select both custom date and time.", "error");
+        return;
+      }
+
+      const scheduleTime = new Date(whenVal).getTime();
+      if (isNaN(scheduleTime)) {
+        Toast.show("Invalid custom date or time.", "error");
         return;
       }
 
@@ -1095,11 +1197,11 @@
       item.message = msg;
       item.repeat = Math.min(100, Math.max(1, repeat));
       item.at = new Date(whenVal).toISOString();
-      item.alerted = false; // Reset alert so it triggers if moved to future
+      item.alerted = false; // Reset alert so it triggers at the new custom time
 
       State.saveReminders();
       Modals.close("editReminderModalBackdrop");
-      Toast.show("Reminder updated successfully.");
+      Toast.show(`Reminder updated for ${Utils.formatDateTime(item.at)}.`);
       this.render();
       DashboardView.render();
     },
@@ -1252,6 +1354,8 @@
           Modals.open("contactModalBackdrop");
         }
       });
+
+      $("btnAddContactBtn").addEventListener("click", () => {
         $("contactEditId").value = "";
         $("contactModalTitle").textContent = "Add New Contact";
         $("contactForm").reset();
