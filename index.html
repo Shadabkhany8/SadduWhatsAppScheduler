@@ -59,10 +59,15 @@
           <span class="live-dot" title="Application running locally"></span>
           <span class="live-text" id="sidebarStatusText">Active • Browser Reminders</span>
         </div>
-        <button class="notif-pill-btn" id="sidebarNotifyBtn" title="Notification Permission Status">
-          <span id="sidebarNotifyIcon">🔔</span>
-          <span id="sidebarNotifyLabel">Enable Alerts</span>
-        </button>
+        <div class="sidebar-actions-row">
+          <button class="notif-pill-btn" id="sidebarNotifyBtn" title="Notification Permission Status">
+            <span id="sidebarNotifyIcon">🔔</span>
+            <span id="sidebarNotifyLabel">Enable Alerts</span>
+          </button>
+          <button class="theme-toggle-btn" id="sidebarThemeToggleBtn" title="Toggle Dark / Light Theme" aria-label="Toggle Theme">
+            <span id="sidebarThemeIcon">🌙</span>
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -75,6 +80,9 @@
         <span class="brand-title">Saddu Scheduler</span>
       </a>
       <div class="topbar-actions">
+        <button class="icon-action-btn" id="mobileThemeToggleBtn" title="Toggle Dark / Light Theme" aria-label="Toggle Theme">
+          <span id="mobileThemeIcon">🌙</span>
+        </button>
         <button class="icon-action-btn" id="mobileNotifyBtn" title="Notification permission" aria-label="Notifications">
           <span id="mobileNotifyIcon">🔔</span>
         </button>
@@ -346,6 +354,73 @@
                   <h3>Message Content</h3>
                 </div>
 
+                <!-- Saddu AI Assistant Studio -->
+                <div class="ai-assistant-card">
+                  <div class="ai-header">
+                    <div class="ai-title-wrap">
+                      <span class="ai-badge">✨ Saddu AI Studio</span>
+                      <span class="ai-hint">Fix spelling &amp; turn 1-word into complete messages</span>
+                    </div>
+                    <div class="ai-controls">
+                      <div class="select-wrapper">
+                        <select id="aiToneSelect" class="ai-tone-select">
+                          <option value="expand">✨ Smart Expand (1-word to message)</option>
+                          <option value="fixSpelling">📝 Fix Spelling &amp; Grammar</option>
+                          <option value="professional">💼 Make Professional</option>
+                          <option value="friendly">🎉 Make Friendly &amp; Warm</option>
+                          <option value="urgent">⚡ Urgent Follow-up</option>
+                          <option value="polite">🙏 Humble &amp; Polite</option>
+                          <option value="hinglish">🇮🇳 Hinglish Conversational</option>
+                        </select>
+                      </div>
+                      <button type="button" class="btn btn-ai" id="btnAiEnhance">
+                        <span class="ai-sparkle">✨</span>
+                        <span id="aiEnhanceLabel">AI Magic</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Quick AI Word Suggestion Chips -->
+                  <div class="ai-quick-keywords">
+                    <span class="ai-kw-label">Try 1-word:</span>
+                    <button type="button" class="ai-kw-chip" data-kw="meeting">meeting</button>
+                    <button type="button" class="ai-kw-chip" data-kw="fees">fees</button>
+                    <button type="button" class="ai-kw-chip" data-kw="birthday">birthday</button>
+                    <button type="button" class="ai-kw-chip" data-kw="late">getting late</button>
+                    <button type="button" class="ai-kw-chip" data-kw="call">call me</button>
+                    <button type="button" class="ai-kw-chip" data-kw="urgent">urgent</button>
+                    <button type="button" class="ai-kw-chip" data-kw="thanks">thank you</button>
+                    <button type="button" class="ai-kw-chip" data-kw="appointment">doctor appointment</button>
+                  </div>
+                </div>
+
+                <!-- WhatsApp Text Formatting & Voice Dictation Toolbar -->
+                <div class="composer-toolbar">
+                  <div class="formatting-group" title="Format WhatsApp text">
+                    <button type="button" class="fmt-btn" id="btnFmtBold" title="Bold (*text*)"><b>B</b></button>
+                    <button type="button" class="fmt-btn" id="btnFmtItalic" title="Italic (_text_)"><i>I</i></button>
+                    <button type="button" class="fmt-btn" id="btnFmtStrike" title="Strikethrough (~text~)"><s>S</s></button>
+                    <button type="button" class="fmt-btn" id="btnFmtMono" title="Monospace (```text```)"><code>M</code></button>
+                  </div>
+                  <div class="emoji-strip" title="Quick Emojis">
+                    <button type="button" class="emoji-btn" data-emoji="👋">👋</button>
+                    <button type="button" class="emoji-btn" data-emoji="✅">✅</button>
+                    <button type="button" class="emoji-btn" data-emoji="📅">📅</button>
+                    <button type="button" class="emoji-btn" data-emoji="⏰">⏰</button>
+                    <button type="button" class="emoji-btn" data-emoji="🎉">🎉</button>
+                    <button type="button" class="emoji-btn" data-emoji="🙏">🙏</button>
+                    <button type="button" class="emoji-btn" data-emoji="💼">💼</button>
+                    <button type="button" class="emoji-btn" data-emoji="💰">💰</button>
+                    <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
+                  </div>
+                  <div class="voice-dictate-group">
+                    <button type="button" class="btn-voice-dictate" id="btnVoiceDictate" title="Speak to Type (Voice Dictation)">
+                      <span id="voiceMicIcon">🎙️</span>
+                      <span id="voiceMicLabel">Speak</span>
+                    </button>
+                  </div>
+                </div>
+
                 <!-- Template chips -->
                 <div class="templates-bar">
                   <span class="templates-label">Templates:</span>
@@ -360,9 +435,9 @@
 
                 <div class="form-group">
                   <label for="messageBody">Message Text <span class="required">*</span></label>
-                  <textarea id="messageBody" rows="4" maxlength="2000" placeholder="Type your WhatsApp message here..." required></textarea>
+                  <textarea id="messageBody" rows="4" maxlength="2000" placeholder="Type your WhatsApp message or 1-word prompt here..." required></textarea>
                   <div class="textarea-footer">
-                    <span class="guidance-text">Respect recipient consent. Avoid unsolicited promotional spam.</span>
+                    <span class="guidance-text">💡 Tip: Type a single word like "fees" or "meeting" and click <b>AI Magic</b>!</span>
                     <span class="char-counter" id="charCounter">0 / 2000</span>
                   </div>
                 </div>
@@ -649,6 +724,30 @@
                   <option value="62">🇮🇩 Indonesia (+62)</option>
                   <option value="55">🇧🇷 Brazil (+55)</option>
                 </select>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>Appearance Theme</strong>
+                <p>Choose WhatsApp Light or Dark mode.</p>
+              </div>
+              <div class="setting-control">
+                <select id="settingThemeSelect" class="sm-select">
+                  <option value="light">☀️ Light Theme</option>
+                  <option value="dark">🌙 Dark Theme</option>
+                  <option value="system">🖥️ System Default</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>Google Gemini API Key <span class="badge-optional">Optional</span></strong>
+                <p>Enter a free Gemini API Key for deep cloud AI generation, or leave empty to use built-in offline AI.</p>
+              </div>
+              <div class="setting-control" style="max-width:210px; width:100%;">
+                <input type="password" id="settingGeminiApiKey" placeholder="Paste API Key (Optional)...">
               </div>
             </div>
 
@@ -950,6 +1049,12 @@
         <button type="button" class="btn btn-secondary btn-block" id="btnDueModalMarkDone">
           <span>Mark as Completed</span>
         </button>
+        <div class="snooze-actions-row">
+          <span class="snooze-label">Snooze:</span>
+          <button type="button" class="btn btn-ghost sm btn-snooze" data-snooze="5">💤 +5 Mins</button>
+          <button type="button" class="btn btn-ghost sm btn-snooze" data-snooze="15">💤 +15 Mins</button>
+          <button type="button" class="btn btn-ghost sm btn-snooze" data-snooze="60">💤 +1 Hour</button>
+        </div>
         <button type="button" class="btn btn-ghost btn-block" id="btnDueModalDismiss">
           <span>Dismiss Alert</span>
         </button>

@@ -18,7 +18,8 @@
   const DEFAULT_SETTINGS = {
     soundEnabled: true,
     defaultCountryCode: "91",
-    theme: "light"
+    theme: "light",
+    geminiApiKey: ""
   };
 
   // Helper selector shorthand
@@ -319,6 +320,340 @@
     }
   };
 
+  // ================= THEME MANAGER (DARK / LIGHT / SYSTEM) =================
+  const ThemeManager = {
+    init() {
+      const savedTheme = State.settings.theme || "light";
+      this.applyTheme(savedTheme, false);
+
+      try {
+        if (window.matchMedia) {
+          window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+            if (State.settings.theme === "auto") {
+              this.applyTheme("auto", false);
+            }
+          });
+        }
+      } catch (e) {}
+
+      const sidebarToggle = $("sidebarThemeToggleBtn");
+      const mobileToggle = $("mobileThemeToggleBtn");
+
+      const toggleAction = () => {
+        const current = document.documentElement.getAttribute("data-theme") || "light";
+        const next = current === "dark" ? "light" : "dark";
+        this.applyTheme(next, true);
+        Toast.show(next === "dark" ? "Dark Mode activated 🌙" : "Light Mode activated ☀️");
+      };
+
+      if (sidebarToggle) sidebarToggle.addEventListener("click", toggleAction);
+      if (mobileToggle) mobileToggle.addEventListener("click", toggleAction);
+    },
+
+    applyTheme(theme, save = true) {
+      let resolved = theme;
+      if (theme === "auto") {
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        resolved = prefersDark ? "dark" : "light";
+      }
+
+      document.documentElement.setAttribute("data-theme", resolved);
+      document.body.setAttribute("data-theme", resolved);
+
+      const isDark = resolved === "dark";
+      const icon = isDark ? "☀️" : "🌙";
+      const title = isDark ? "Switch to Light Mode" : "Switch to Dark Mode";
+
+      const sidebarIcon = $("sidebarThemeIcon");
+      if (sidebarIcon) sidebarIcon.textContent = icon;
+      const sidebarBtn = $("sidebarThemeToggleBtn");
+      if (sidebarBtn) sidebarBtn.title = title;
+
+      const mobileIcon = $("mobileThemeIcon");
+      if (mobileIcon) mobileIcon.textContent = icon;
+      const mobileBtn = $("mobileThemeToggleBtn");
+      if (mobileBtn) mobileBtn.title = title;
+
+      const settingSelect = $("settingThemeSelect");
+      if (settingSelect && settingSelect.value !== theme) {
+        settingSelect.value = theme;
+      }
+
+      if (save) {
+        State.settings.theme = theme;
+        State.saveSettings();
+      }
+    }
+  };
+
+  // ================= SADDU AI STUDIO (SPELL CHECK & SMART EXPANSION) =================
+  const AiStudio = {
+    typoDict: {
+      "teh": "the", "recipt": "receipt", "meting": "meeting", "meetng": "meeting",
+      "tommorow": "tomorrow", "tommorrow": "tomorrow", "tomorow": "tomorrow",
+      "scheduale": "schedule", "schedul": "schedule", "scedule": "schedule",
+      "pls": "please", "plz": "please", "pleez": "please", "thx": "thank you",
+      "tq": "thank you", "thanx": "thank you", "asap": "as soon as possible",
+      "ur": "your", "u": "you", "r": "are", "msg": "message", "msz": "message",
+      "attn": "attention", "appmnt": "appointment", "apmt": "appointment",
+      "feez": "fees", "fess": "fees", "bday": "birthday", "brthday": "birthday",
+      "b'day": "birthday", "cll": "call", "wrk": "work", "imp": "important",
+      "imprtant": "important", "urgnt": "urgent", "urget": "urgent",
+      "attnd": "attend", "remindr": "reminder", "rember": "remember", "cancle": "cancel",
+      "cncl": "cancel", "availble": "available", "avalable": "available", "doc": "doctor",
+      "hosp": "hospital", "hppy": "happy", "congrats": "congratulations",
+      "gud": "good", "mrg": "morning", "mrng": "morning", "nyt": "night",
+      "wud": "would", "cud": "could", "shud": "should", "abt": "about",
+      "bcz": "because", "coz": "because"
+    },
+
+    fixSpelling(text) {
+      if (!text || !text.trim()) return text;
+      let words = text.split(/(\s+|[.,!?;:()]+)/);
+      for (let i = 0; i < words.length; i++) {
+        const lower = words[i].toLowerCase();
+        if (this.typoDict[lower]) {
+          const replacement = this.typoDict[lower];
+          if (words[i][0] === words[i][0].toUpperCase() && words[i].length > 1) {
+            words[i] = replacement.charAt(0).toUpperCase() + replacement.slice(1);
+          } else {
+            words[i] = replacement;
+          }
+        }
+      }
+      let cleaned = words.join("");
+      cleaned = cleaned.replace(/(^\s*|[.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+      return cleaned;
+    },
+
+    expandSmart(rawText, tone = "expand") {
+      const trimmed = (rawText || "").trim();
+      const cleaned = this.fixSpelling(trimmed);
+      const lower = cleaned.toLowerCase();
+      const isShort = lower.split(/\s+/).filter(Boolean).length <= 4;
+
+      if (isShort) {
+        if (/^(meeting|meet|discuss|discussion)$/.test(lower) || lower.includes("meeting")) {
+          return "Hello! 👋 Just wanted to confirm our upcoming meeting. Could you please confirm if the scheduled time works for you? Looking forward to connecting.";
+        }
+        if (/^(fees|fee|due|payment|invoice|bill)$/.test(lower) || lower.includes("fee") || lower.includes("payment")) {
+          return "Dear recipient, this is a gentle reminder regarding the pending fee/payment due. Kindly make the payment at your earliest convenience. If already paid, please ignore this notice. Thank you! 🙏";
+        }
+        if (/^(birthday|bday|b'day|hbd)$/.test(lower) || lower.includes("birthday")) {
+          return "🎉 Wishing you a very Happy Birthday! 🎂 May your day be filled with joy, happiness, success, and prosperity. Have a wonderful celebration!";
+        }
+        if (/^(late|delay|stuck|traffic)$/.test(lower) || lower.includes("late")) {
+          return "Hi, I am running a little late due to unexpected traffic/delays. I will be there in about 15-20 minutes. Apologies for the inconvenience!";
+        }
+        if (/^(call|call me|dial|phone)$/.test(lower) || lower.includes("call me")) {
+          return "Hello, I tried reaching out to you. Whenever you are free, could you please give me a quick call? It is regarding an important update. Thanks!";
+        }
+        if (/^(urgent|emergency|asap|important)$/.test(lower) || lower.includes("urgent")) {
+          return "⚠️ *URGENT*: Please review this message immediately and get back to me as soon as possible. Your prompt response is appreciated.";
+        }
+        if (/^(thanks|thank you|thx|gratitude)$/.test(lower) || lower.includes("thank")) {
+          return "Thank you so much for your kind support and assistance! It is truly appreciated. Have a wonderful day ahead! 🙏✨";
+        }
+        if (/^(appointment|doctor|checkup|visit)$/.test(lower) || lower.includes("appointment") || lower.includes("doctor")) {
+          return "Hello, this is a reminder regarding our scheduled appointment. Please ensure to arrive 10 minutes early. Let me know if you need to reschedule. Thank you!";
+        }
+      }
+
+      switch (tone) {
+        case "fixSpelling":
+          return cleaned || "Hello, I hope you are having a productive day.";
+
+        case "professional":
+          return `Dear Sir/Madam,\n\nI am writing to kindly bring to your attention:\n${cleaned || "our scheduled discussion"}.\n\nPlease review and let me know your thoughts at your earliest convenience.\n\nBest regards.`;
+
+        case "friendly":
+          return `Hey there! 😊 Hope you're having an awesome day.\n\nJust wanted to reach out regarding: ${cleaned || "our catch-up"}.\n\nLet's connect soon! 🙌`;
+
+        case "urgent":
+          return `⚠️ *URGENT & IMPORTANT* ⚠️\n\n${cleaned || "Immediate attention required."}\n\nPlease review this as soon as possible and acknowledge. Thank you!`;
+
+        case "polite":
+          return `Namaste / Hello 🙏,\n\nI humbly request a moment of your time regarding: ${cleaned || "our pending matter"}.\n\nThank you very much for your understanding and continuous support.`;
+
+        case "hinglish":
+          return `Bhai/Dost, ek quick update tha:\n"${cleaned || "Apna kaam discuss karna hai"}"\n\nFree hote hi please check kar lena aur reply dena. Thanks! 👍`;
+
+        case "expand":
+        default:
+          if (!cleaned) {
+            return "Hello! Hope this message finds you well. Just checking in with you. Have a great day ahead!";
+          }
+          return `Hello! Just following up regarding: *${cleaned}*.\n\nPlease check and update me whenever you are free. Thank you!`;
+      }
+    },
+
+    async enhance(rawText, tone = "expand") {
+      const apiKey = State.settings.geminiApiKey ? State.settings.geminiApiKey.trim() : "";
+
+      if (apiKey) {
+        try {
+          const prompt = `You are an AI WhatsApp messaging assistant. Rewrite this into a polished WhatsApp message.
+Tone: ${tone}.
+Rule: If the input is just 1 or 2 words (like 'fees', 'meeting', 'late'), expand it into a complete, professional and clear WhatsApp message with suitable emojis and WhatsApp formatting (*bold*).
+Return ONLY the final message text without markdown fences or quotes.
+
+Input: "${rawText || "greeting"}"`;
+
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 300 }
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (candidate && candidate.trim()) {
+              return candidate.trim();
+            }
+          }
+        } catch (err) {
+          console.warn("Gemini API call failed, using offline smart engine:", err);
+        }
+      }
+
+      return this.expandSmart(rawText, tone);
+    }
+  };
+
+  // ================= WHATSAPP FORMATTING & VOICE DICTATION =================
+  const FormattingToolbar = {
+    recognition: null,
+    isRecording: false,
+
+    init() {
+      this.bindFormatButtons();
+      this.bindEmojiButtons();
+      this.bindVoiceDictation();
+    },
+
+    insertAtCursor(before, after = "") {
+      const textarea = $("messageBody");
+      if (!textarea) return;
+
+      const start = textarea.selectionStart || 0;
+      const end = textarea.selectionEnd || 0;
+      const val = textarea.value;
+      const selected = val.substring(start, end);
+
+      const replacement = before + (selected || "") + after;
+      textarea.value = val.substring(0, start) + replacement + val.substring(end);
+
+      const newCursorPos = selected ? start + replacement.length : start + before.length;
+      textarea.focus();
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+
+      textarea.dispatchEvent(new Event("input"));
+    },
+
+    bindFormatButtons() {
+      const boldBtn = $("btnFmtBold");
+      const italicBtn = $("btnFmtItalic");
+      const strikeBtn = $("btnFmtStrike");
+      const monoBtn = $("btnFmtMono");
+
+      if (boldBtn) boldBtn.addEventListener("click", () => this.insertAtCursor("*", "*"));
+      if (italicBtn) italicBtn.addEventListener("click", () => this.insertAtCursor("_", "_"));
+      if (strikeBtn) strikeBtn.addEventListener("click", () => this.insertAtCursor("~", "~"));
+      if (monoBtn) monoBtn.addEventListener("click", () => this.insertAtCursor("```", "```"));
+    },
+
+    bindEmojiButtons() {
+      $$(".emoji-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const emoji = btn.getAttribute("data-emoji");
+          if (emoji) {
+            this.insertAtCursor(emoji, "");
+          }
+        });
+      });
+    },
+
+    bindVoiceDictation() {
+      const voiceBtn = $("btnVoiceDictate");
+      const micLabel = $("voiceMicLabel");
+      if (!voiceBtn) return;
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        voiceBtn.title = "Voice dictation not supported in this browser (Use Chrome or Edge)";
+        voiceBtn.addEventListener("click", () => {
+          Toast.show("Voice dictation is supported in Google Chrome, Edge, and Android Chrome.", "warning");
+        });
+        return;
+      }
+
+      try {
+        this.recognition = new SpeechRecognition();
+        this.recognition.continuous = false;
+        this.recognition.interimResults = false;
+        this.recognition.lang = navigator.language || "en-US";
+
+        this.recognition.onstart = () => {
+          this.isRecording = true;
+          voiceBtn.classList.add("is-recording");
+          if (micLabel) micLabel.textContent = "Listening...";
+          Toast.show("🎙️ Listening... Speak your message now.");
+        };
+
+        this.recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          if (transcript) {
+            const textarea = $("messageBody");
+            if (textarea) {
+              const current = textarea.value.trim();
+              textarea.value = current ? `${current} ${transcript}` : transcript;
+              textarea.dispatchEvent(new Event("input"));
+            }
+            Toast.show(`Heard: "${transcript}"`);
+          }
+        };
+
+        this.recognition.onerror = (event) => {
+          console.warn("Speech recognition error:", event.error);
+          this.stopRecording();
+          Toast.show(`Voice dictation error: ${event.error}`, "warning");
+        };
+
+        this.recognition.onend = () => {
+          this.stopRecording();
+        };
+
+        voiceBtn.addEventListener("click", () => {
+          if (this.isRecording) {
+            try { this.recognition.stop(); } catch (e) {}
+            this.stopRecording();
+          } else {
+            try {
+              this.recognition.start();
+            } catch (err) {
+              this.stopRecording();
+            }
+          }
+        });
+      } catch (err) {
+        console.warn("Speech recognition init failed:", err);
+      }
+    },
+
+    stopRecording() {
+      this.isRecording = false;
+      const voiceBtn = $("btnVoiceDictate");
+      const micLabel = $("voiceMicLabel");
+      if (voiceBtn) voiceBtn.classList.remove("is-recording");
+      if (micLabel) micLabel.textContent = "Speak";
+    }
+  };
+
   // ================= ROUTER / NAVIGATION =================
   const Router = {
     views: ["dashboard", "compose", "reminders", "contacts", "settings"],
@@ -572,6 +907,46 @@
             this.updatePreview();
             Toast.show("Set to Tomorrow 9:00 AM");
           }
+        });
+      });
+
+      // AI Studio Enhance Button
+      const btnAiEnhance = $("btnAiEnhance");
+      const aiToneSelect = $("aiToneSelect");
+      const aiEnhanceLabel = $("aiEnhanceLabel");
+
+      if (btnAiEnhance) {
+        btnAiEnhance.addEventListener("click", async () => {
+          const currentText = this.messageBody.value;
+          const tone = aiToneSelect ? aiToneSelect.value : "expand";
+
+          if (aiEnhanceLabel) aiEnhanceLabel.textContent = "Thinking...";
+          btnAiEnhance.disabled = true;
+
+          try {
+            const enhanced = await AiStudio.enhance(currentText, tone);
+            this.messageBody.value = enhanced;
+            this.updatePreview();
+            Toast.show("✨ Message enhanced by Saddu AI!");
+          } catch (e) {
+            Toast.show("Could not enhance message.", "error");
+          } finally {
+            if (aiEnhanceLabel) aiEnhanceLabel.textContent = "AI Magic";
+            btnAiEnhance.disabled = false;
+          }
+        });
+      }
+
+      // AI Quick Keyword Chips
+      $$(".ai-kw-chip").forEach(chip => {
+        chip.addEventListener("click", async () => {
+          const kw = chip.getAttribute("data-kw") || chip.textContent.trim();
+          this.messageBody.value = kw;
+          const tone = aiToneSelect ? aiToneSelect.value : "expand";
+          const enhanced = await AiStudio.enhance(kw, tone);
+          this.messageBody.value = enhanced;
+          this.updatePreview();
+          Toast.show(`✨ AI generated message for "${kw}"!`);
         });
       });
 
@@ -1750,12 +2125,29 @@
     init() {
       this.soundToggle = $("settingSoundEnabled");
       this.defaultCodeSelect = $("settingDefaultCountryCode");
+      this.themeSelect = $("settingThemeSelect");
+      this.geminiApiKeyInput = $("settingGeminiApiKey");
 
       this.bindEvents();
       this.syncUI();
     },
 
     bindEvents() {
+      if (this.themeSelect) {
+        this.themeSelect.addEventListener("change", () => {
+          ThemeManager.applyTheme(this.themeSelect.value, true);
+          Toast.show(`Theme updated to ${this.themeSelect.value}`);
+        });
+      }
+
+      if (this.geminiApiKeyInput) {
+        this.geminiApiKeyInput.addEventListener("change", () => {
+          State.settings.geminiApiKey = this.geminiApiKeyInput.value.trim();
+          State.saveSettings();
+          Toast.show("Gemini API key saved in browser storage.");
+        });
+      }
+
       this.soundToggle.addEventListener("change", () => {
         State.settings.soundEnabled = this.soundToggle.checked;
         State.saveSettings();
@@ -1905,6 +2297,8 @@
     syncUI() {
       this.soundToggle.checked = State.settings.soundEnabled;
       this.defaultCodeSelect.value = State.settings.defaultCountryCode || "91";
+      if (this.themeSelect) this.themeSelect.value = State.settings.theme || "light";
+      if (this.geminiApiKeyInput) this.geminiApiKeyInput.value = State.settings.geminiApiKey || "";
       this.updatePermissionLabel();
     },
 
@@ -2079,6 +2473,30 @@
       $("btnDueModalDismiss").addEventListener("click", () => {
         Modals.close("dueModalBackdrop");
       });
+
+      // Snooze buttons (+5m, +15m, +60m)
+      $$(".btn-snooze").forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (!this.currentDueItem) {
+            Modals.close("dueModalBackdrop");
+            return;
+          }
+          const mins = parseInt(btn.getAttribute("data-snooze"), 10) || 5;
+          const newTime = new Date(Date.now() + mins * 60 * 1000).toISOString();
+
+          this.currentDueItem.at = newTime;
+          this.currentDueItem.alerted = false;
+          this.currentDueItem.done = false;
+          this.currentDueItem.status = "scheduled";
+
+          State.saveReminders();
+          Toast.show(`⏰ Snoozed for ${mins} minutes`);
+          Modals.close("dueModalBackdrop");
+          this.updateGlobalDueBanner();
+          DashboardView.render();
+          RemindersView.render();
+        });
+      });
     },
 
     updateGlobalDueBanner() {
@@ -2148,7 +2566,11 @@
       // 1. Initialize State first
       State.init();
 
-      // 2. Initialize all Views and their DOM element references
+      // 2. Initialize Theme and Formatting Toolbar
+      ThemeManager.init();
+      FormattingToolbar.init();
+
+      // 3. Initialize all Views and their DOM element references
       ComposerView.init();
       DashboardView.init();
       RemindersView.init();
@@ -2156,10 +2578,10 @@
       SettingsView.init();
       Scheduler.init();
 
-      // 3. Initialize Router AFTER views are ready
+      // 4. Initialize Router AFTER views are ready
       Router.init();
 
-      // 4. Initial render of default view
+      // 5. Initial render of default view
       DashboardView.render();
     } catch (err) {
       console.error("Initialization error:", err);
