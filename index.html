@@ -2,84 +2,956 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#128c4a">
-  <meta name="description" content="A free, browser-based WhatsApp message reminder and scheduler.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#128C7E">
+  <meta name="description" content="Saddu WhatsApp Scheduler: A free, responsive, browser-based WhatsApp message scheduler and reminder tool.">
   <title>Saddu WhatsApp Scheduler</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#" aria-label="Saddu WhatsApp Scheduler home">
-      <span class="brand-mark">S</span>
-      <span><b>Saddu</b><small>WhatsApp Scheduler</small></span>
-    </a>
-    <div class="top-actions">
-      <span class="status-dot"></span><span class="status-label">Personal reminder mode</span>
-      <button class="icon-btn" id="notifyBtn" title="Enable browser notifications" aria-label="Enable notifications">🔔</button>
-    </div>
-  </header>
-
-  <main class="page">
-    <section class="welcome">
-      <div>
-        <p class="eyebrow">YOUR MESSAGES, YOUR TIMING</p>
-        <h1>Plan a message.<br><span>Never miss the moment.</span></h1>
-        <p class="sub">Schedule a reminder, prepare your message and open the real WhatsApp chat when it’s time.</p>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <div class="bubble bubble-one">Hey! 👋</div>
-        <div class="phone"><div class="phone-top"></div><div class="chat-line"></div><div class="chat-line short"></div><div class="chat-line right"></div><div class="chat-line right tiny"></div><div class="phone-send">➤</div></div>
-        <div class="bubble bubble-two">On time ✨</div>
-      </div>
-    </section>
-
-    <section class="stats">
-      <article class="stat-card"><span class="stat-icon green">◷</span><div><small>Scheduled</small><strong id="scheduledCount">0</strong></div></article>
-      <article class="stat-card"><span class="stat-icon mint">✓</span><div><small>Due today</small><strong id="todayCount">0</strong></div></article>
-      <article class="stat-card"><span class="stat-icon pale">✉</span><div><small>Prepared messages</small><strong id="preparedCount">0</strong></div></article>
-    </section>
-
-    <section class="content-grid">
-      <section class="panel compose-panel">
-        <div class="panel-heading"><div><p class="eyebrow">CREATE REMINDER</p><h2>Schedule a message</h2></div><span class="step-badge">01</span></div>
-        <form id="scheduleForm">
-          <label for="phone">WhatsApp number <span class="optional">with country code</span></label>
-          <div class="phone-input"><span>＋</span><input id="phone" type="tel" inputmode="tel" placeholder="91 9876543210" autocomplete="tel" required></div>
-          <p class="hint">Example: 91 followed by the 10-digit mobile number. Don’t include spaces or symbols.</p>
-
-          <label for="message">Your message</label>
-          <textarea id="message" rows="4" maxlength="2000" placeholder="Type your message here..." required></textarea>
-          <div class="field-foot"><span>Use a message the recipient is happy to receive.</span><span id="charCount">0 / 2000</span></div>
-
-          <div class="two-col">
-            <div><label for="repeat">Repeat text in one message</label><input id="repeat" type="number" min="1" max="100" value="1" required><p class="hint">For example, 100 creates one message containing the text 100 times.</p></div>
-            <div><label for="scheduleAt">Reminder date & time</label><input id="scheduleAt" type="datetime-local" required><p class="hint">Keep this page open for an on-time browser reminder.</p></div>
+  <!-- App Shell Layout -->
+  <div class="app-layout">
+    <!-- Desktop Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar" aria-label="Main Navigation">
+      <div class="sidebar-header">
+        <a class="brand" href="#dashboard" aria-label="Saddu WhatsApp Scheduler Home">
+          <div class="brand-avatar">
+            <svg viewBox="0 0 24 24" class="brand-icon" aria-hidden="true">
+              <path fill="currentColor" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.42 0-2.82-.37-4.06-1.07l-.29-.17-3.12.82.83-3.04-.19-.3a8.217 8.217 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.4-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.12-.22-.19-.47-.32z"/>
+            </svg>
           </div>
-          <div class="preview-box"><div class="preview-title"><span>MESSAGE PREVIEW</span><span class="preview-tag">One WhatsApp message</span></div><p id="previewText">Your message preview will appear here.</p></div>
-          <button class="primary-btn" type="submit"><span>＋</span> Save reminder</button>
-          <p class="disclaimer">This app does not send messages automatically. At the scheduled time, it reminds you and opens WhatsApp with your prepared text. You choose whether to tap Send.</p>
-        </form>
+          <div class="brand-text">
+            <span class="brand-title">Saddu</span>
+            <span class="brand-subtitle">WhatsApp Scheduler</span>
+          </div>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-item active" data-view="dashboard">
+          <svg viewBox="0 0 24 24" class="nav-icon"><path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          <span>Dashboard</span>
+          <span class="nav-badge" id="badgeDueToday" style="display:none;">0</span>
+        </a>
+        <a href="#compose" class="nav-item" data-view="compose">
+          <svg viewBox="0 0 24 24" class="nav-icon"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <span>Compose Message</span>
+        </a>
+        <a href="#reminders" class="nav-item" data-view="reminders">
+          <svg viewBox="0 0 24 24" class="nav-icon"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/></svg>
+          <span>Reminders</span>
+          <span class="nav-badge count" id="badgeUpcomingCount">0</span>
+        </a>
+        <a href="#contacts" class="nav-item" data-view="contacts">
+          <svg viewBox="0 0 24 24" class="nav-icon"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          <span>Contacts</span>
+          <span class="nav-badge subtle" id="badgeContactsCount">0</span>
+        </a>
+        <a href="#settings" class="nav-item" data-view="settings">
+          <svg viewBox="0 0 24 24" class="nav-icon"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          <span>Settings & Backup</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status-pill">
+          <span class="live-dot" title="Application running locally"></span>
+          <span class="live-text" id="sidebarStatusText">Active • Browser Reminders</span>
+        </div>
+        <button class="notif-pill-btn" id="sidebarNotifyBtn" title="Notification Permission Status">
+          <span id="sidebarNotifyIcon">🔔</span>
+          <span id="sidebarNotifyLabel">Enable Alerts</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Mobile Top Navigation Header -->
+    <header class="mobile-topbar" aria-label="Mobile Navigation">
+      <a class="brand" href="#dashboard">
+        <div class="brand-avatar sm">
+          <svg viewBox="0 0 24 24" class="brand-icon"><path fill="currentColor" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/></svg>
+        </div>
+        <span class="brand-title">Saddu Scheduler</span>
+      </a>
+      <div class="topbar-actions">
+        <button class="icon-action-btn" id="mobileNotifyBtn" title="Notification permission" aria-label="Notifications">
+          <span id="mobileNotifyIcon">🔔</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area (SPAs views) -->
+    <main class="main-content" id="mainContent">
+
+      <!-- Global Active Due Banner (Hidden by default, shown when items are due) -->
+      <section class="due-banner" id="globalDueBanner" style="display:none;" aria-live="assertive">
+        <div class="due-banner-icon">⏰</div>
+        <div class="due-banner-content">
+          <strong id="dueBannerTitle">Message Reminder Due Now!</strong>
+          <p id="dueBannerSubtitle">Tap below to review the prepared message and open WhatsApp.</p>
+        </div>
+        <div class="due-banner-actions">
+          <button class="btn btn-primary sm" id="dueBannerOpenBtn">Open WhatsApp</button>
+          <button class="btn btn-ghost sm" id="dueBannerDismissBtn">Mark Completed</button>
+        </div>
       </section>
 
-      <section class="panel list-panel">
-        <div class="panel-heading list-heading"><div><p class="eyebrow">YOUR PLAN</p><h2>Upcoming reminders</h2></div><span class="count-pill" id="listCount">0 items</span></div>
-        <div class="filter-row">
-          <button class="filter active" data-filter="upcoming">Upcoming</button>
-          <button class="filter" data-filter="all">All</button>
-          <button class="filter" data-filter="done">Completed</button>
+      <!-- VIEW 1: DASHBOARD -->
+      <section class="view active" id="view-dashboard" data-title="Dashboard">
+        <div class="dashboard-hero">
+          <div class="hero-text">
+            <span class="eyebrow-tag">WHATSAPP SCHEDULER & REMINDER</span>
+            <h1 class="hero-title"><span id="greetingTime">Welcome</span>, <span class="highlight-green">Plan Your Messages</span></h1>
+            <p class="hero-desc">
+              Compose in advance, schedule the exact moment, and get reminded with a 1-tap WhatsApp Click-to-Chat link. 100% private and stored on your device.
+            </p>
+            <div class="hero-cta-group">
+              <a href="#compose" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                <span>New Reminder</span>
+              </a>
+              <a href="#contacts" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span>Manage Contacts</span>
+              </a>
+            </div>
+          </div>
+          <div class="hero-badge-card">
+            <div class="live-clock-card">
+              <span class="clock-label">YOUR LOCAL TIME</span>
+              <div class="clock-display" id="dashClockDisplay">--:--:--</div>
+              <div class="clock-timezone" id="dashTimezoneDisplay">UTC</div>
+              <div class="compliance-badge">
+                <svg viewBox="0 0 24 24" class="badge-check-icon"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>Official Click-to-Chat (wa.me)</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="reminderList" class="reminder-list">
-          <div class="empty-state"><div class="empty-icon">🗓️</div><b>No reminders yet</b><p>Create your first reminder using the form.</p></div>
+
+        <!-- 4 Statistics Cards -->
+        <div class="stats-grid">
+          <article class="stat-card" data-filter="all">
+            <div class="stat-icon-wrap green">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Total Reminders</span>
+              <strong class="stat-number" id="dashStatTotal">0</strong>
+              <span class="stat-sub" id="dashStatTotalSub">Saved in browser</span>
+            </div>
+          </article>
+
+          <article class="stat-card" data-filter="upcoming">
+            <div class="stat-icon-wrap teal">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Upcoming Reminders</span>
+              <strong class="stat-number" id="dashStatUpcoming">0</strong>
+              <span class="stat-sub text-teal">Active schedule</span>
+            </div>
+          </article>
+
+          <article class="stat-card" data-filter="due">
+            <div class="stat-icon-wrap amber">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Due Today</span>
+              <strong class="stat-number" id="dashStatToday">0</strong>
+              <span class="stat-sub text-amber" id="dashStatOverdueSub">0 overdue</span>
+            </div>
+          </article>
+
+          <article class="stat-card" data-filter="done">
+            <div class="stat-icon-wrap mint">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Completed</span>
+              <strong class="stat-number" id="dashStatCompleted">0</strong>
+              <span class="stat-sub text-green">Sent / Handled</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- Dashboard Two-Column Layout -->
+        <div class="dash-columns">
+          <!-- Upcoming Schedule Section -->
+          <div class="panel dash-schedule-panel">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-eyebrow">AGENDA</span>
+                <h2 class="panel-title">Upcoming Schedule</h2>
+              </div>
+              <a href="#reminders" class="link-subtle">View all &rarr;</a>
+            </div>
+            <div class="dash-upcoming-list" id="dashUpcomingList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Quick Actions & Recent Activity -->
+          <div class="dash-side-column">
+            <!-- Quick Composer Card -->
+            <div class="panel quick-compose-panel">
+              <div class="panel-header">
+                <div class="panel-title-wrap">
+                  <span class="panel-eyebrow">FAST ACTION</span>
+                  <h3 class="panel-title">Quick Reminder</h3>
+                </div>
+              </div>
+              <form id="quickComposeForm" class="compact-form">
+                <div class="form-group">
+                  <label for="quickPhone">WhatsApp Number</label>
+                  <input type="tel" id="quickPhone" placeholder="Country code + phone (e.g. 919876543210)" required>
+                </div>
+                <div class="form-group">
+                  <label for="quickMessage">Message</label>
+                  <textarea id="quickMessage" rows="2" placeholder="Quick message note..." required></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-6">
+                    <label for="quickWhen">In</label>
+                    <select id="quickWhen">
+                      <option value="15">15 minutes</option>
+                      <option value="30">30 minutes</option>
+                      <option value="60" selected>1 hour</option>
+                      <option value="180">3 hours</option>
+                      <option value="tomorrow9">Tomorrow 9 AM</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary btn-block">Schedule</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Quick Contacts Box -->
+            <div class="panel quick-contacts-panel">
+              <div class="panel-header">
+                <div class="panel-title-wrap">
+                  <span class="panel-eyebrow">FREQUENT</span>
+                  <h3 class="panel-title">Saved Contacts</h3>
+                </div>
+                <a href="#contacts" class="link-subtle">+ Add</a>
+              </div>
+              <div class="quick-contact-chips" id="dashQuickContacts">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+          </div>
         </div>
       </section>
-    </section>
 
-    <section class="info-strip"><span class="info-icon">ⓘ</span><div><b>How sending works</b><p>Saddu is a reminder tool, not a WhatsApp automation service. It uses a WhatsApp click-to-chat link. WhatsApp opens with your message ready; you manually review and send it.</p></div></section>
-    <footer><span>© <span id="year"></span> Saddu WhatsApp Scheduler</span><span>Free • Browser-based • Your reminders stay on this device</span></footer>
-  </main>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <!-- VIEW 2: MESSAGE COMPOSER -->
+      <section class="view" id="view-compose" data-title="Compose Message">
+        <div class="composer-grid">
+          <!-- Composer Form Panel -->
+          <div class="panel composer-panel">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-eyebrow">NEW REMINDER</span>
+                <h2 class="panel-title">Compose WhatsApp Message</h2>
+              </div>
+              <span class="step-indicator">Step 1 of 1</span>
+            </div>
+
+            <form id="fullScheduleForm" novalidate>
+              <!-- Recipient Section -->
+              <div class="composer-section">
+                <div class="section-heading">
+                  <span class="section-number">1</span>
+                  <h3>Recipient Information</h3>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-12">
+                    <label for="contactSelector">Quick Pick from Saved Contacts <span class="badge-optional">Optional</span></label>
+                    <div class="select-wrapper">
+                      <select id="contactSelector">
+                        <option value="">-- Select a contact or enter number manually --</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-4">
+                    <label for="countryCodeSelect">Country Code</label>
+                    <div class="select-wrapper">
+                      <select id="countryCodeSelect">
+                        <option value="91" selected>🇮🇳 India (+91)</option>
+                        <option value="1">🇺🇸/🇨🇦 USA/Canada (+1)</option>
+                        <option value="44">🇬🇧 UK (+44)</option>
+                        <option value="971">🇦🇪 UAE (+971)</option>
+                        <option value="966">🇸🇦 Saudi Arabia (+966)</option>
+                        <option value="61">🇦🇺 Australia (+61)</option>
+                        <option value="62">🇮🇩 Indonesia (+62)</option>
+                        <option value="55">🇧🇷 Brazil (+55)</option>
+                        <option value="49">🇩🇪 Germany (+49)</option>
+                        <option value="33">🇫🇷 France (+33)</option>
+                        <option value="92">🇵🇰 Pakistan (+92)</option>
+                        <option value="880">🇧🇩 Bangladesh (+880)</option>
+                        <option value="custom">Other / Custom</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group col-8">
+                    <label for="phoneNumber">WhatsApp Mobile Number <span class="required">*</span></label>
+                    <div class="input-with-prefix">
+                      <span class="input-prefix" id="countryCodeDisplay">+91</span>
+                      <input type="tel" id="phoneNumber" inputmode="numeric" placeholder="9876543210" autocomplete="tel" required>
+                    </div>
+                    <span class="form-hint" id="phoneHint">Enter mobile number without spaces or dashes.</span>
+                  </div>
+                </div>
+
+                <div class="form-group checkbox-group" id="saveContactCheckboxGroup">
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="saveAsNewContact">
+                    <span class="checkbox-box"></span>
+                    <span class="checkbox-label">Save this number to my Contacts list</span>
+                  </label>
+                </div>
+
+                <div class="form-group" id="newContactNameField" style="display:none;">
+                  <label for="newContactName">Contact Name</label>
+                  <input type="text" id="newContactName" placeholder="e.g. Rahul Sharma, Mom, Dr. Patel">
+                </div>
+              </div>
+
+              <!-- Message Section -->
+              <div class="composer-section">
+                <div class="section-heading">
+                  <span class="section-number">2</span>
+                  <h3>Message Content</h3>
+                </div>
+
+                <!-- Template chips -->
+                <div class="templates-bar">
+                  <span class="templates-label">Templates:</span>
+                  <div class="template-chips">
+                    <button type="button" class="chip" data-tpl="meeting">📅 Meeting Reminder</button>
+                    <button type="button" class="chip" data-tpl="birthday">🎉 Birthday Wish</button>
+                    <button type="button" class="chip" data-tpl="payment">💳 Payment Follow-up</button>
+                    <button type="button" class="chip" data-tpl="checkin">👋 Friendly Check-in</button>
+                    <button type="button" class="chip" data-tpl="clear">✖ Clear</button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="messageBody">Message Text <span class="required">*</span></label>
+                  <textarea id="messageBody" rows="4" maxlength="2000" placeholder="Type your WhatsApp message here..." required></textarea>
+                  <div class="textarea-footer">
+                    <span class="guidance-text">Respect recipient consent. Avoid unsolicited promotional spam.</span>
+                    <span class="char-counter" id="charCounter">0 / 2000</span>
+                  </div>
+                </div>
+
+                <div class="form-group repeat-box">
+                  <div class="repeat-header">
+                    <div>
+                      <label for="repeatCount">Repeat Text in Single Message</label>
+                      <span class="repeat-info">Repeats the text <b>inside one composed WhatsApp message</b> (1 to 100 times).</span>
+                    </div>
+                    <span class="repeat-badge" id="repeatCountBadge">1x</span>
+                  </div>
+                  <div class="repeat-control-row">
+                    <input type="range" id="repeatSlider" min="1" max="100" value="1" class="slider">
+                    <input type="number" id="repeatCount" min="1" max="100" value="1" class="number-input">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Timing Section -->
+              <div class="composer-section">
+                <div class="section-heading">
+                  <span class="section-number">3</span>
+                  <h3>Schedule Timing</h3>
+                </div>
+
+                <!-- Quick Timing Shortcuts -->
+                <div class="timing-shortcuts">
+                  <span class="shortcuts-label">Quick time:</span>
+                  <button type="button" class="btn-time-shortcut" data-offset="15">+15 Mins</button>
+                  <button type="button" class="btn-time-shortcut" data-offset="30">+30 Mins</button>
+                  <button type="button" class="btn-time-shortcut" data-offset="60">+1 Hour</button>
+                  <button type="button" class="btn-time-shortcut" data-offset="180">+3 Hours</button>
+                  <button type="button" class="btn-time-shortcut" data-preset="tonight">Tonight 8 PM</button>
+                  <button type="button" class="btn-time-shortcut" data-preset="tomorrow9">Tomorrow 9 AM</button>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-12">
+                    <label for="scheduleDateTime">Date & Time <span class="required">*</span></label>
+                    <input type="datetime-local" id="scheduleDateTime" required>
+                    <span class="form-hint">Displayed in your local timezone (<span id="userTimezoneLabel">Local</span>). Keep the tab open for real-time alerts.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="composer-actions">
+                <button type="submit" class="btn btn-primary btn-lg" id="btnSaveReminder">
+                  <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+                  <span>Save Scheduled Reminder</span>
+                </button>
+                <button type="button" class="btn btn-secondary" id="btnTestOpenWA" title="Test click-to-chat preview immediately">
+                  <span>Test WhatsApp Link</span>
+                </button>
+              </div>
+
+              <div class="compliance-note">
+                <span class="compliance-icon">ℹ️</span>
+                <p>
+                  <b>Compliance & Privacy:</b> Saddu is an on-device personal reminder assistant. It utilizes the official WhatsApp <code>https://wa.me/</code> protocol to prepare your message for manual sending. It will never send automated messages in the background or endanger your WhatsApp account.
+                </p>
+              </div>
+            </form>
+          </div>
+
+          <!-- Live WhatsApp Preview Column -->
+          <div class="preview-column">
+            <div class="preview-sticky-wrap">
+              <div class="preview-card-header">
+                <h3>Live Message Preview</h3>
+                <span class="preview-badge">WhatsApp Chat Simulator</span>
+              </div>
+
+              <!-- WhatsApp Phone Mockup -->
+              <div class="wa-mockup">
+                <div class="wa-mockup-header">
+                  <div class="wa-mockup-avatar">
+                    <svg viewBox="0 0 24 24"><path fill="#ffffff" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                  </div>
+                  <div class="wa-mockup-user">
+                    <strong id="previewRecipientName">+91 ...</strong>
+                    <small>online</small>
+                  </div>
+                  <div class="wa-mockup-actions">
+                    <span class="wa-icon">📹</span>
+                    <span class="wa-icon">📞</span>
+                    <span class="wa-icon">⋮</span>
+                  </div>
+                </div>
+
+                <div class="wa-mockup-body">
+                  <div class="wa-date-pill">Today</div>
+
+                  <div class="wa-chat-bubble outgoing">
+                    <div class="wa-bubble-content" id="previewBubbleText">Your composed message will appear here in real time...</div>
+                    <div class="wa-bubble-meta">
+                      <span class="wa-bubble-time" id="previewBubbleTime">12:00 PM</span>
+                      <span class="wa-bubble-ticks">✓✓</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="wa-mockup-footer">
+                  <div class="mockup-input-bar">
+                    <span>😊 Type a message...</span>
+                    <span>📎 📷 🎤</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Summary Card -->
+              <div class="preview-summary-card">
+                <div class="summary-row">
+                  <span>Recipient:</span>
+                  <strong id="summaryPhone">Not specified</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Scheduled for:</span>
+                  <strong id="summaryWhen">Not selected</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Repeat Count:</span>
+                  <strong id="summaryRepeat">1 copy</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Total Prepared Length:</span>
+                  <strong id="summaryLength">0 characters</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: REMINDER MANAGEMENT -->
+      <section class="view" id="view-reminders" data-title="Manage Reminders">
+        <div class="panel">
+          <div class="reminders-toolbar">
+            <div class="reminders-heading">
+              <span class="panel-eyebrow">SAVED SCHEDULES</span>
+              <h2 class="panel-title">Reminders Manager</h2>
+            </div>
+            <div class="reminders-actions">
+              <a href="#compose" class="btn btn-primary sm">
+                <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                <span>Add Reminder</span>
+              </a>
+              <button class="btn btn-secondary sm" id="btnClearCompletedBtn">
+                <span>Clear Completed</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter & Search Controls -->
+          <div class="filter-controls-bar">
+            <div class="filter-tabs" role="tablist">
+              <button type="button" class="filter-tab active" data-filter="all">All (<span id="countTabAll">0</span>)</button>
+              <button type="button" class="filter-tab" data-filter="upcoming">Upcoming (<span id="countTabUpcoming">0</span>)</button>
+              <button type="button" class="filter-tab" data-filter="due">Due / Overdue (<span id="countTabDue">0</span>)</button>
+              <button type="button" class="filter-tab" data-filter="done">Completed (<span id="countTabDone">0</span>)</button>
+            </div>
+
+            <div class="search-sort-group">
+              <div class="search-input-wrap">
+                <svg viewBox="0 0 24 24" class="search-icon"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="remindersSearchInput" placeholder="Search by recipient or message...">
+              </div>
+              <div class="sort-select-wrap">
+                <select id="remindersSortSelect" aria-label="Sort Reminders">
+                  <option value="dueSoonest">Sort: Due Soonest</option>
+                  <option value="dueLatest">Sort: Due Latest</option>
+                  <option value="newestCreated">Sort: Recently Added</option>
+                  <option value="oldestCreated">Sort: Oldest Added</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reminders Card List -->
+          <div class="reminders-list-container" id="remindersListContainer">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: CONTACTS MANAGER -->
+      <section class="view" id="view-contacts" data-title="Contacts Manager">
+        <div class="panel">
+          <div class="contacts-toolbar">
+            <div class="contacts-heading">
+              <span class="panel-eyebrow">ADDRESS BOOK</span>
+              <h2 class="panel-title">WhatsApp Contacts</h2>
+            </div>
+            <div class="contacts-btn-group">
+              <button type="button" class="btn btn-secondary sm" id="btnOpenCsvModal">
+                <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                <span>Import CSV</span>
+              </button>
+              <button type="button" class="btn btn-secondary sm" id="btnExportContactsCsv">
+                <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                <span>Export CSV</span>
+              </button>
+              <button type="button" class="btn btn-primary sm" id="btnAddContactBtn">
+                <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span>Add Contact</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Contacts Search Bar -->
+          <div class="contacts-search-bar">
+            <div class="search-input-wrap">
+              <svg viewBox="0 0 24 24" class="search-icon"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" id="contactsSearchInput" placeholder="Search contacts by name, phone number, or tag...">
+            </div>
+            <span class="contacts-count-label" id="contactsCountLabel">0 contacts</span>
+          </div>
+
+          <!-- Contacts Grid -->
+          <div class="contacts-grid" id="contactsGrid">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: SETTINGS & BACKUP -->
+      <section class="view" id="view-settings" data-title="Settings & Data">
+        <div class="settings-grid">
+          <!-- Notification & Audio Settings -->
+          <div class="panel settings-card">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-eyebrow">PREFERENCES</span>
+                <h3 class="panel-title">Notifications & Sound</h3>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>Browser Push Notifications</strong>
+                <p>Receive notifications when reminders are due while the page or browser is active.</p>
+              </div>
+              <div class="setting-control">
+                <button type="button" class="btn btn-secondary sm" id="btnRequestNotificationPermission">
+                  <span id="notifPermissionBtnLabel">Request Permission</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>Audio Chime Alert</strong>
+                <p>Play a pleasant Web Audio alert tone when a reminder becomes due.</p>
+              </div>
+              <div class="setting-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="settingSoundEnabled" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>Default Country Code</strong>
+                <p>Preset country code applied to new numbers.</p>
+              </div>
+              <div class="setting-control">
+                <select id="settingDefaultCountryCode" class="sm-select">
+                  <option value="91">🇮🇳 India (+91)</option>
+                  <option value="1">🇺🇸 USA/Canada (+1)</option>
+                  <option value="44">🇬🇧 UK (+44)</option>
+                  <option value="971">🇦🇪 UAE (+971)</option>
+                  <option value="966">🇸🇦 Saudi Arabia (+966)</option>
+                  <option value="61">🇦🇺 Australia (+61)</option>
+                  <option value="62">🇮🇩 Indonesia (+62)</option>
+                  <option value="55">🇧🇷 Brazil (+55)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="test-sound-row">
+              <button type="button" class="btn btn-ghost sm" id="btnTestSound">🔊 Test Sound Chime</button>
+              <button type="button" class="btn btn-ghost sm" id="btnTestNotification">🔔 Test Notification</button>
+            </div>
+          </div>
+
+          <!-- Backup & Data Persistence -->
+          <div class="panel settings-card">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-eyebrow">DATA MANAGEMENT</span>
+                <h3 class="panel-title">Backup & Restore</h3>
+              </div>
+            </div>
+
+            <p class="settings-desc">
+              All reminders, contacts, and preferences are stored exclusively inside your browser's local storage. Export a backup to safeguard your data or transfer it to another computer.
+            </p>
+
+            <div class="backup-actions">
+              <button type="button" class="btn btn-primary" id="btnExportJsonBackup">
+                <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <span>Export JSON Backup</span>
+              </button>
+
+              <div class="import-wrapper">
+                <label for="importJsonFile" class="btn btn-secondary">
+                  <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                  <span>Import JSON Backup</span>
+                </label>
+                <input type="file" id="importJsonFile" accept=".json,application/json" style="display:none;">
+              </div>
+            </div>
+
+            <div class="storage-metrics-box">
+              <div class="metric-item">
+                <span class="metric-label">Reminders Count:</span>
+                <strong id="metricRemindersCount">0</strong>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Contacts Count:</span>
+                <strong id="metricContactsCount">0</strong>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Estimated Storage:</span>
+                <strong id="metricStorageUsed">0 KB</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="panel settings-card danger-card">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-eyebrow text-danger">RESET OPTIONS</span>
+                <h3 class="panel-title text-danger">Danger Zone</h3>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>Clear Completed Reminders</strong>
+                <p>Delete all completed reminders to keep your list organized.</p>
+              </div>
+              <div class="setting-control">
+                <button type="button" class="btn btn-secondary sm" id="btnSettingsClearCompleted">Clear Completed</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <strong>Reset All Application Data</strong>
+                <p>Permanently remove all contacts, scheduled reminders, and preferences from this device.</p>
+              </div>
+              <div class="setting-control">
+                <button type="button" class="btn btn-danger sm" id="btnResetAllData">Reset Everything</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- About & Architecture Card -->
+          <div class="panel settings-card">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-eyebrow">ABOUT</span>
+                <h3 class="panel-title">About Saddu WhatsApp Scheduler</h3>
+              </div>
+            </div>
+            <div class="about-content">
+              <p>
+                <b>Saddu WhatsApp Scheduler</b> is a 100% static, client-side web application designed to be deployed for free on <b>GitHub Pages</b>.
+              </p>
+              <ul>
+                <li><strong>No Server Required:</strong> Operates entirely within your browser using HTML5, CSS3, Vanilla JavaScript, and LocalStorage.</li>
+                <li><strong>No Unofficial Bots:</strong> Leverages official WhatsApp Click-to-Chat deep links (<code>https://wa.me/</code>), preventing account bans.</li>
+                <li><strong>Privacy First:</strong> Your phone numbers, contacts, and personal messages never leave your device.</li>
+              </ul>
+              <div class="app-version-foot">
+                <span>Version 2.0.0 • Free & Open Source</span>
+                <span>Hosted on GitHub Pages</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- App Global Footer -->
+      <footer class="app-footer">
+        <div class="footer-left">
+          <span>&copy; <span id="footerYear">2026</span> <b>Saddu WhatsApp Scheduler</b></span>
+          <span class="footer-separator">•</span>
+          <span>Free Browser-Based SaaS Tool</span>
+        </div>
+        <div class="footer-right">
+          <span>Personal Reminder Mode</span>
+          <span class="footer-separator">•</span>
+          <a href="#settings" class="footer-link">Backup &amp; Privacy</a>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-nav" id="mobileNav" aria-label="Mobile Navigation Bar">
+      <a href="#dashboard" class="mobile-nav-item active" data-view="dashboard">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="#compose" class="mobile-nav-item" data-view="compose">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <span>Compose</span>
+      </a>
+      <a href="#reminders" class="mobile-nav-item" data-view="reminders">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/></svg>
+        <span>Reminders</span>
+      </a>
+      <a href="#contacts" class="mobile-nav-item" data-view="contacts">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        <span>Contacts</span>
+      </a>
+      <a href="#settings" class="mobile-nav-item" data-view="settings">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Modal 1: Add / Edit Contact Modal -->
+  <div class="modal-backdrop" id="contactModalBackdrop" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="contactModalTitle">Add New Contact</h3>
+        <button type="button" class="modal-close-btn" id="btnCloseContactModal" aria-label="Close dialog">&times;</button>
+      </div>
+      <form id="contactForm" novalidate>
+        <input type="hidden" id="contactEditId" value="">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="contactFormName">Full Name <span class="required">*</span></label>
+            <input type="text" id="contactFormName" placeholder="e.g. John Doe, Family, Client" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-4">
+              <label for="contactFormCode">Country Code</label>
+              <div class="select-wrapper">
+                <select id="contactFormCode">
+                  <option value="91" selected>🇮🇳 +91</option>
+                  <option value="1">🇺🇸 +1</option>
+                  <option value="44">🇬🇧 +44</option>
+                  <option value="971">🇦🇪 +971</option>
+                  <option value="966">🇸🇦 +966</option>
+                  <option value="61">🇦🇺 +61</option>
+                  <option value="62">🇮🇩 +62</option>
+                  <option value="55">🇧🇷 +55</option>
+                  <option value="custom">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group col-8">
+              <label for="contactFormPhone">WhatsApp Number <span class="required">*</span></label>
+              <input type="tel" id="contactFormPhone" placeholder="Mobile number without +" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="contactFormTag">Tag or Group <span class="badge-optional">Optional</span></label>
+            <input type="text" id="contactFormTag" placeholder="e.g. Work, Family, VIP, Leads">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelContactModal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveContact">Save Contact</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Edit Reminder Modal -->
+  <div class="modal-backdrop" id="editReminderModalBackdrop" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="editReminderModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="editReminderModalTitle">Edit Scheduled Reminder</h3>
+        <button type="button" class="modal-close-btn" id="btnCloseEditReminderModal" aria-label="Close dialog">&times;</button>
+      </div>
+      <form id="editReminderForm" novalidate>
+        <input type="hidden" id="editReminderId" value="">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editReminderPhone">WhatsApp Mobile Number</label>
+            <input type="tel" id="editReminderPhone" placeholder="Country code + phone" required>
+          </div>
+          <div class="form-group">
+            <label for="editReminderMessage">Message</label>
+            <textarea id="editReminderMessage" rows="4" required></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-4">
+              <label for="editReminderRepeat">Repeat Count</label>
+              <input type="number" id="editReminderRepeat" min="1" max="100" value="1" required>
+            </div>
+            <div class="form-group col-8">
+              <label for="editReminderWhen">Reminder Date &amp; Time</label>
+              <input type="datetime-local" id="editReminderWhen" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelEditReminder">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveEditedReminder">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Import CSV Modal -->
+  <div class="modal-backdrop" id="csvModalBackdrop" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="csvModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="csvModalTitle">Import Contacts from CSV</h3>
+        <button type="button" class="modal-close-btn" id="btnCloseCsvModal" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Upload a <code>.csv</code> file containing contacts. The file should have columns for <b>Name</b> and <b>Phone</b>. Country code will be automatically prefixed if missing.
+        </p>
+
+        <div class="csv-dropzone" id="csvDropzone">
+          <svg viewBox="0 0 24 24" class="dropzone-icon"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+          <p><strong>Click to browse</strong> or drag & drop CSV file here</p>
+          <span class="file-hint">Maximum 1000 contacts per import</span>
+          <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display:none;">
+        </div>
+
+        <div id="csvPreviewArea" style="display:none;" class="csv-preview-box">
+          <div class="csv-summary" id="csvSummaryText">Parsed 0 contacts</div>
+          <div class="csv-table-scroll">
+            <table class="csv-preview-table" id="csvPreviewTable">
+              <thead><tr><th>Name</th><th>Phone</th><th>Status</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelCsvModal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmCsvImport" disabled>Import Contacts</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Due Reminder In-App Alert Popup -->
+  <div class="modal-backdrop due-alert-backdrop" id="dueModalBackdrop" style="display:none;" role="alertdialog" aria-modal="true" aria-labelledby="dueModalTitle">
+    <div class="modal-card due-modal-card">
+      <div class="due-modal-badge">
+        <span class="due-bell-animation">🔔</span>
+      </div>
+      <h3 id="dueModalTitle">WhatsApp Reminder Due!</h3>
+      <p id="dueModalDesc">Your planned message is ready to be reviewed and opened in WhatsApp.</p>
+
+      <div class="due-card-preview">
+        <div class="due-preview-recipient" id="dueModalRecipient">+91 ...</div>
+        <div class="due-preview-msg" id="dueModalMessage">Prepared message text...</div>
+        <div class="due-preview-time" id="dueModalTime">Scheduled: Just now</div>
+      </div>
+
+      <div class="due-modal-actions">
+        <button type="button" class="btn btn-primary btn-lg btn-block" id="btnDueModalOpenWA">
+          <svg viewBox="0 0 24 24" class="btn-icon"><path fill="currentColor" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.42 0-2.82-.37-4.06-1.07l-.29-.17-3.12.82.83-3.04-.19-.3a8.217 8.217 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.4-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.12-.22-.19-.47-.32z"/></svg>
+          <span>Open WhatsApp Now</span>
+        </button>
+        <button type="button" class="btn btn-secondary btn-block" id="btnDueModalMarkDone">
+          <span>Mark as Completed</span>
+        </button>
+        <button type="button" class="btn btn-ghost btn-block" id="btnDueModalDismiss">
+          <span>Dismiss Alert</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Generic Confirmation Modal -->
+  <div class="modal-backdrop" id="confirmModalBackdrop" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-card confirm-modal-card">
+      <div class="modal-header">
+        <h3 id="confirmModalTitle">Confirm Action</h3>
+        <button type="button" class="modal-close-btn" id="btnCloseConfirmModal" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMessage">Are you sure you want to proceed?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnConfirmCancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmAccept">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Main Application Logic -->
   <script src="script.js"></script>
 </body>
 </html>

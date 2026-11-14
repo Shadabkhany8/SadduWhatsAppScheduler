@@ -1,9 +1,12 @@
 {
   "name": "Saddu WhatsApp Scheduler",
   "short_name": "Saddu Scheduler",
+  "description": "A free, responsive, browser-based WhatsApp message scheduler and reminder tool.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f5faf7",
-  "theme_color": "#128c4a",
+  "background_color": "#F5F7F6",
+  "theme_color": "#128C7E",
+  "categories": ["productivity", "utilities"],
   "icons": []
 }
